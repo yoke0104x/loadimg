@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图片合成</title>
+</head>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+    <input type="file">
+    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var c = document.getElementById("myCanvas");
+        c.width=922;
+        c.height=558;
+        var ctx = c.getContext("2d");
+        let img = new Image();
+        axios({
+            method: 'post',
+            url: 'http://123.206.55.50:11000/tobase64',
+            data: {url: 'http://123.206.55.50:11000/static/2d23e0fbb8cff9c0805e8c21.jpg'}
+        }).then(body=>{
+            console.log('body...', body);
+            img.src=body.data.data.base64;
+        }).catch(e=>{
+            console.log('e..', e);
+        })
+        img.onload = function(){
+            ctx.drawImage(img,0,0)
+        }
+        var ele = document.querySelector('input');
+        ele.onchange = function(e){
+            let files = e.target.files;
+            var reader = new FileReader();
+            reader.onload = function(){
+                let avator = new Image()
+                avator.src = this.result
+                avator.onload = function(){
+                    ctx.drawImage(avator,0,0,400,400,660,90,400,400)
+                    var result = c.toDataURL('jpg', 0.8);
+                    // console.log(result);
+                    // axios({
+                    //     method: 'post',
+                    //     url: 'http://123.206.55.50:11000/upload_base64',
+                    //     data: {base64: result}
+                    // }).then(body=>{
+                    //     console.log('body...', body);
+                    //     let imgs = new Image()
+                    //     imgs.src = body.data.data.path
+                    //     document.body.appendChild(imgs)
+                    // }).catch(e=>{
+                    //     console.log('e..', e);
+                    // })
+                    let imgs = new Image()
+                    imgs.src = result
+                    document.body.appendChild(imgs)
+                }
+            }
+            reader.readAsDataURL(files[0]);
+        }
+    </script>
+</body>
+
+</html>
